@@ -1,9 +1,11 @@
-from django.shortcuts import render
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.utils.six import BytesIO
+from django.http import Http404
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 from api.models import Charts
 from api.serializers import ChartsSerializer
 
@@ -14,43 +16,49 @@ class JSONResponse(HttpResponse):
         kwargs["content_type"] = "application/json"
         super(JSONResponse, self).__init__(content, **kwargs)
 
-@csrf_exempt
-def chartList(request):
-    if request.method == "GET":
+class ChartsList(APIView):
+    def get(self, request, format=None):
         charts = Charts.objects.all()
         serialzer = ChartsSerializer(charts, many=True)
-        return JSONResponse(serialzer.data)
+        return Response(serialzer.data)
 
-    elif request.method == "POST":
-        print(request.body)
+    def post(self, request, format=None):
         stream = BytesIO(request.body)
-        print("Stream:", stream)
         data = JSONParser().parse(stream)
-        print("data:", data)
         serializer = ChartsSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return JSONResponse(serializer.data, status=201)
-        return JSONResponse(serializer.errors, status=400)
+            return JSONResponse(serializer.data, status=status.HTTP_201_CREATED)
+        return JSONResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Create your views here.
-def index(request):
-    jsonData = json.dumps({
-        'text': 'this is supposed to be some text',
-        'data': [
-                {
-                    'text': 'this is'
-                },
-                {
-                    'text': 'is an '
-                },
-                {
-                    'text': 'array of objects'
-                }
-            ],
-        'number': 521,
-        'bool': True
-    })
 
-    # return HttpResponse('Sup dude')
-    return HttpResponse(jsonData, content_type='application/json' )
+class EachChart(APIView):
+    def getChart(self, chartId):
+        """
+        Retun an individual Chart object
+        """
+        try :
+            return Charts.objects.get(id=chartId)
+        except Charts.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        chart = self.getChart(id)
+        serializer = ChartsSerializer(chart)
+        return Response(serializer.data)
+
+    def put(self, request, id, format=None):
+        stream = BytesIO(request.body)
+        data = JSONParser().parse(stream)
+        chart = self.getChart(id)
+        serializer = ChartsSerializer(chart, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.error, status=HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id, format=None):
+        chart = self.getChart(id)
+        chart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

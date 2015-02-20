@@ -24,7 +24,7 @@ class WritableJSONField(serializers.Field):
 # need to do it in our views where we have the logic to insert the data
 
 class ChartsSerializer(serializers.Serializer):
-    id =            serializers.IntegerField()
+    id =            serializers.IntegerField(read_only=True)
     chartName =     serializers.CharField(allow_blank=True, max_length=200)
     description =   serializers.CharField(allow_blank=True, max_length=800)
     isPrivate =     serializers.BooleanField(default=False)
@@ -41,8 +41,10 @@ class ChartsSerializer(serializers.Serializer):
         Update and return an existing `Charts` instance when given validated
         data
         """
-
-        instance.chartName =    validatedData.get('ChartName')
+        # Make damn fucking sure that the names in the get method parameters are
+        # the same fucking names used in the model fields or you will fucking suffer
+        # at fucking 1 in the morning
+        instance.chartName =    validatedData.get('chartName')
         instance.description =  validatedData.get('description')
         instance.isPrivate =    validatedData.get('isPrivate')
         instance.jsonData =     validatedData.get('jsonData')

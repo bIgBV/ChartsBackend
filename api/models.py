@@ -15,4 +15,3 @@ class Charts(models.Model):
 
     class Meta:
         ordering = ('createdOn',)
-
