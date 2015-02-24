@@ -8,6 +8,7 @@ class Charts(models.Model):
     createdOn =         models.DateTimeField(auto_now_add=True, null=True)
     isPrivate =         models.BooleanField(default=False)
     jsonData =          JSONField()
+    owner =             models.ForeignKey('auth.User', related_name='charts')
 
     def __str__(self):
         representation = self.chartName

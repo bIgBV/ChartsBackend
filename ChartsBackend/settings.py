@@ -50,11 +50,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-REST_FRAMEWORK = {
-        # Use Django's default permission `django.contrib.auth`
-        'DEFAULT_PERMISSION_CLASSES': [
-            ]
-        }
+# REST_FRAMEWORK = {
+#         # Use Django's default permission `django.contrib.auth`
+#         'DEFAULT_PERMISSION_CLASSES': ()
+#         }
 
 ROOT_URLCONF = 'ChartsBackend.urls'
 
