@@ -1,0 +1,6 @@
+Django==1.7.4
+django-filter==0.9.2
+djangorestframework==3.0.5
+jsonfield==1.0.2
+Markdown==2.5.2
+psycopg2==2.6
